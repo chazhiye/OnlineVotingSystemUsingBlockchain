@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Transactions</title>
+    <link rel="stylesheet" type="text/css" href="../css/monitor.css">
+    <link rel="stylesheet" type="text/css" href="../css/sidebar.css">
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="/assets/eth_logo.png" alt="EEvoting Logo" class="sidebar-logo" id="sidebarLogo">
+            <span class="sidebar-text">EEvoting</span>
+        </div>
+        <button id="dashboardButton">
+            <img src="/assets/dashboard.png" alt="Dashboard Icon" class="sidebar-icon"> <span class="sidebar-text">Dashboard</span>
+        </button>
+        <button id="manageUsersButton">
+            <img src="/assets/addUser.png" alt="Manage Users Icon" class="sidebar-icon"> <span class="sidebar-text">Manage Users</span>
+        </button>
+        <button id="createVoteButton">
+            <img src="/assets/create.png" alt="Create Vote Icon" class="sidebar-icon"> <span class="sidebar-text">Create Vote</span>
+        </button>
+        <button id="monitorButton" class="active">
+            <img src="/assets/monitor.png" alt="Monitor Icon" class="sidebar-icon"> <span class="sidebar-text">Monitor</span>
+        </button>
+        <button id="logoutButton" class="logoutButton">
+            <img src="/assets/logout.png" alt="Logout Icon" class="sidebar-icon"> <span class="sidebar-text">Logout</span>
+        </button>
+    </div>
+    <div class="main-content" id="mainContent">
+        <h1>Transaction Monitor</h1>
+        <div id="transactionContainer"></div>
+        <script src="../dist/routing.bundle.js"></script>
+        <script src="../dist/monitor.bundle.js"></script>
+    </div>
+</body>
+</html>
