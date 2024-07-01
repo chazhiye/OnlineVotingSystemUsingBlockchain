@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Portal</title>
+    <link rel="stylesheet" type="text/css" href="../css/admin.css">
+    <link rel="stylesheet" type="text/css" href="../css/sidebar.css">
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="/assets/eth_logo.png" alt="EEvoting Logo" class="sidebar-logo" id="sidebarLogo">
+            <span class="sidebar-text">EEvoting</span>
+        </div>
+        <button id="dashboardButton" >
+            <img src="/assets/dashboard.png" alt="Dashboard Icon" class="sidebar-icon"> <span class="sidebar-text">Dashboard</span>
+        </button>
+        <button id="manageUsersButton">
+            <img src="/assets/addUser.png" alt="Manage Users Icon" class="sidebar-icon"> <span class="sidebar-text">Manage Users</span>
+        </button>
+        <button id="createVoteButton" class="active">
+            <img src="/assets/create.png" alt="Create Vote Icon" class="sidebar-icon"> <span class="sidebar-text">Create Vote</span>
+        </button>
+        <button id="monitorButton" >
+            <img src="/assets/monitor.png" alt="Monitor Icon" class="sidebar-icon"> <span class="sidebar-text">Monitor</span>
+        </button>
+        <button id="logoutButton" class="logoutButton">
+            <img src="/assets/logout.png" alt="Logout Icon" class="sidebar-icon"> <span class="sidebar-text">Logout</span>
+        </button>
+    </div>
+    <div class="main-content" id="mainContent">
+    <div id="head" class="text-center">
+        <h1 align="center" style="color: rgb(6, 6, 6);">Online Voting System Using Blockchain</h1>
+        <button id="createRoomButton" class="actionButton active">Define Voting Room</button>
+        <button id="addCandidateButton" class="actionButton">Add Candidate</button>
+        <button id="assignUsersButton" class="actionButton">Assign Users</button>
+    </div>
+
+
+    <div class="form-container">
+        <div id="defineVotingRoomSection" class="form-section">
+            <legend>Define Voting Room</legend>  
+            <table class="table text-center"> 
+                <tr>
+                    <th>Voting Room Name</th>
+                    <td colspan="3"><input id="roomName" type="text" name="roomName" placeholder="Voting Room Name"></td>
+                </tr>
+                <tr>        
+                    <th>Start date</th>
+                    <td><input id="startDate" type="date" name=""></td>
+                    <th>End date</th>
+                    <td><input id="endDate" type="date" name=""></td>
+                </tr>
+            </table> 
+            <div id="msg1"></div>
+            <div class="submit-container">
+                <input id="createRoom" type="submit" name="submit" value="submit">
+            </div>
+            <p id="Aday"></p>
+        </div>
+        
+        <div id="addCandidateSection" class="form-section" style="display: none;">
+            <legend>Add Candidate</legend>  
+            <table class="table text-center"> 
+                <tr>
+                    <th>Voting Room</th>
+                    <td>
+                        <select id="selectRoom"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td><input id="name" type="text" name="name" placeholder="Candidate's Name" autocomplete="off"></td>  
+                    <th>IC Number</th>
+                    <td><input id="IC" type="text" name="IC" placeholder="Candidate's IC Number"></td> 
+                </tr>
+            </table> 
+            <div id="msg2"></div>
+            <div class="submit-container">
+                <input id="addCandidate" type="submit" name="submit" value="submit">
+            </div>
+            <p id="Aday"></p>
+        </div>
+    
+        <div id="assignUsersSection" class="form-section" style="display: none;">
+            <legend>Assign Users to Voting Room</legend>
+            <table class="table text-center">
+                <tr>
+                    <th>Users</th>
+                    <td>
+                        <select id="userList" multiple></select>
+                        <button id="addAllUsersButton" class="actionButton">Add All</button>
+                        <button id="removeAllUsersButton" class="actionButton">Remove All</button>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Selected Users</th>
+                    <td>
+                        <div id="selectedUsers" class="selected-users-container"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Voting Room</th>
+                    <td>
+                        <select id="selectRoomForAssignment"></select>
+                    </td>
+                </tr>
+            </table>
+            <div id="msg3"></div>
+            <div id="msg4"></div>
+            <div class="submit-container">
+                <input id="assignUsers" type="submit" value="Assign to Room">
+            </div>
+            <p id="Aday"></p>
+        </div>
+        
+    </div>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="../dist/routing.bundle.js"></script>
+    <script src="../dist/manageVote.bundle.js" type="module"></script>
+</body>
+</html>

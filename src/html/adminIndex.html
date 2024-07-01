@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Voting Page</title>
+  <link rel="stylesheet" type="text/css" href="../css/index.css">
+  <link rel="stylesheet" type="text/css" href="../css/sidebar.css">
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="/assets/eth_logo.png" alt="EEvoting Logo" class="sidebar-logo" id="sidebarLogo">
+        <span class="sidebar-text">EEvoting</span>
+    </div>
+    <button id="dashboardButton" >
+        <img src="/assets/dashboard.png" alt="Dashboard Icon" class="sidebar-icon"> <span class="sidebar-text">Dashboard</span>
+    </button>
+    <button id="manageUsersButton">
+        <img src="/assets/addUser.png" alt="Manage Users Icon" class="sidebar-icon"> <span class="sidebar-text">Manage Users</span>
+    </button>
+    <button id="createVoteButton" class="active">
+        <img src="/assets/create.png" alt="Create Vote Icon" class="sidebar-icon"> <span class="sidebar-text">Create Vote</span>
+    </button>
+    <button id="monitorButton" >
+        <img src="/assets/monitor.png" alt="Monitor Icon" class="sidebar-icon"> <span class="sidebar-text">Monitor</span>
+    </button>
+    <button id="logoutButton" class="logoutButton">
+        <img src="/assets/logout.png" alt="Logout Icon" class="sidebar-icon"> <span class="sidebar-text">Logout</span>
+    </button>
+</div>
+
+  <div class="main-content" id="mainContent">
+    <div id="head" class="text-center">
+      <h1 align="center">Online Voting System Using Blockchain</h1>
+      <h2 align="center">Admin Panel for <span id="roomName"></span></h2>
+      <h3 align="center"><p>Voting Dates: <span id="dates"></span></p></h3>
+      <br/>
+    </div>
+    <div id="candidate" class="container">
+      <table class="table text-center">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Total Vote</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="boxCandidate"></tbody>
+      </table>
+      <br/>    
+      <div class="text-center">
+        <button id="deleteAllButton" class="btn btn-danger">Delete All Records</button>
+      </div>
+      <div id="winner" class="text-center"></div>
+
+    </div>
+    <div id="account">
+      <p id="accountAddress" class="text-center"></p>
+    </div>
+
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+  <script src="../dist/routing.bundle.js"></script>
+  <script src="../dist/adminIndex.bundle.js" type="module"></script>
+</body>
+</html>
+

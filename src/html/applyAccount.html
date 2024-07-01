@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apply for Account</title>
+  <link rel="stylesheet" type="text/css" href="../css/login.css">
+</head>
+
+<body>
+  <h1 align="center" style="color: rgb(14, 15, 15);">Online Voting System Using Blockchain</h1>
+  <div class="container mt-5">
+    <h1>Account Application</h1>
+    
+    <form id="applyAccountForm">
+      <label for="walletID"><h3>Wallet ID</h3></label>
+      <input type="text" class="form-control" id="walletID" name="walletID" placeholder="Wallet ID">
+      <label for="role"><h3>Role</h3></label>
+      <select class="form-control" id="role" name="role">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+      
+      <label for="IC"><h3>IC number</h3></label>
+      <input type="text" class="form-control" id="IC" name="IC" placeholder="000000-00-0000">
+      
+      <button type="submit" id="apply" class="btn btn-primary"><b>Apply</b></button>
+    </form>
+    
+    <div class="mt-3">
+      <button class="btn link-btn" onclick="window.location.href='/'"><b>Back to Login</b></button>
+    </div>
+  </div>
+  
+  <script src="../js/manageAcc.js" type="module"></script>
+</body>
+</html>

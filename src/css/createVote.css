@@ -1,0 +1,80 @@
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  min-height: 100vh;
+  background: url('../assets/eth5.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.container {
+  width: 900px;
+  height: 500px;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.65);
+  padding: 40px;
+  border-radius: 5px;
+  box-shadow: 0px 3px 10px rgba(255, 255, 255, 0.1);
+  text-align: center;
+  margin: 20px auto; /* Center the container horizontally */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+h1 {
+  font-size: 32px;
+  text-align: center;
+  color: #ffffff; /* Changed to white for better readability */
+  margin-bottom: 30px;
+}
+
+.voteButton {
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 10px;
+  color: rgb(255, 255, 255);
+  padding: 10px 20px;
+  background-color: #cbc81d;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.voteButton:hover {
+  background-color: #d2d2c9;
+}
+
+.button {
+  background-color: #cbc81d;
+  border: none;
+  color: white;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #960ba5;
+}
+
+.plus-symbol {
+  font-size: 80px;
+  line-height: 1;
+}
+
+.flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
