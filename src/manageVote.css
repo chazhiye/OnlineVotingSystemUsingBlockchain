@@ -1,0 +1,186 @@
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  background: url('./assets/eth5.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.form-container {
+  width: 1100px;
+  max-width: 1100px;
+  background-color: rgba(0, 0, 0, 0.65);
+  padding: 40px;
+  border-radius: 5px;
+  box-shadow: 0px 3px 10px rgba(255, 255, 255, 0.1);
+  text-align: center;
+  justify-content: flex-start;
+  margin: 20px auto; /* Center the container horizontally */
+}
+
+h1 {
+  font-size: 32px;
+  color: #090909;
+  margin-bottom: 30px;
+}
+
+legend {
+  font-size: 24px;
+  color: #070707;
+  margin-bottom: 20px;
+}
+#msg1,#msg2,#msg3 {
+  font-size: 18px;
+  color: #29d820;
+  margin-bottom: 30px;
+}
+.table {
+  width: 80%;
+  margin: 0 auto; /* Center the table horizontally */
+  margin-bottom: 20px;
+  background-color: rgba(255, 255, 255, 0.65);
+  border-radius: 5px;
+}
+
+th {
+  font-size: 18px;
+  color: #000000;
+}
+
+td {
+  font-size: 16px;
+  color: #000000;
+}
+
+input[type="text"],
+input[type="date"],
+select {
+  width: 80%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 15px;
+  color: #000000;
+  background-color: rgb(255, 255, 255);
+}
+
+#IC { 
+  width: 200px;  
+}
+
+input[type="submit"] {
+  width: 30%;
+  padding: 12px;
+  background-color: #cbc81d;
+  color: #060606;
+  border: none;
+  border-radius: 5px;
+  font-size: 19px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+  background-color: #960ba5;
+}
+
+input[type="submit"]:focus {
+  outline: none;
+}
+
+input[type="submit"]:active {
+  transform: translateY(2px);
+}
+
+.submit-container {
+  display: flex;
+  justify-content: center;
+}
+.selected-users-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  min-height: 60px;
+  width: 80%;
+  overflow-y: auto;
+}
+#Aday {
+  font-size: 18px;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .form-container {
+      width: 90%;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#addAllUsersButton,#removeAllUsersButton{
+  background-color: transparent;
+  color: rgb(61, 138, 232);
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#addAllUsersButton:hover,#removeAllUsersButton:hover{
+  color: rgb(117, 169, 232);
+}
+.actionButton {
+  background-color: transparent;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px;
+}
+#createRoomButton{
+  margin-left: 10%;
+}
+.actionButton.active {
+  color: #960ba5;
+  background-color: transparent;
+}
+
+.actionButton:hover {
+  color: #960ba5;
+  background-color: transparent;
+}
+.remove-user-button {
+  color: red;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.remove-user-button:hover {
+  color: darkred;
+}
+#assignUsersSection .table td { 
+  display: flex;           
+  align-items: center;      
+}
+
+#userList {       
+  width: 100%;     
+  margin-right: 10px;  
+}
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.text-center {
+  text-align: center;
+}

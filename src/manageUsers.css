@@ -1,0 +1,144 @@
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: url('./assets/eth5.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+h1 {
+  font-size: 32px;
+  color: #090909;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.container {
+  width: 800px;
+  height: auto;
+  background-color: rgba(0, 0, 0, 0.65);
+  padding: 40px;
+  border-radius: 5px;
+  box-shadow: 0px 3px 10px rgba(255, 255, 255, 0.1);
+  text-align: center;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.button-group {
+  display: flex;
+  margin-left: 20%;
+  margin-bottom: 20px;
+}
+
+.section-button {
+  background-color: transparent;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.section-button.active, .section-button:hover {
+  color: #960ba5;
+}
+
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+input[type="text"], select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button[type="submit"] {
+  width: 80%;
+  padding: 12px;
+  background-color: #cbc81d;
+  color: #060606;
+  border: none;
+  border-radius: 5px;
+  font-size: 19px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #960ba5;
+}
+
+.successMessage {
+  color: green;
+  margin-top: 10px;
+}
+
+#errorMessage {
+  color: red;
+  margin-top: 10px;
+}
+
+#addUserForm {
+  width: 400px;
+  padding: 50px;
+  margin-bottom: 20px;
+  background-color: rgba(255, 255, 255, 0.65);
+  border-radius: 5px;
+}
+
+#applicantsTable, #allUsersTable {
+  width: 100%;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  background-color: rgba(255, 255, 255, 0.65);
+  border-radius: 5px;
+  border-collapse: collapse; /* Ensure borders are properly collapsed */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+#applicantsTable th, #applicantsTable td, #allUsersTable th, #allUsersTable td {
+  border: 1px solid #ddd; /* Add border to table cells */
+  padding: 8px; /* Padding for table cells */
+  word-break: break-all; /* Ensure long words break within the cell */
+  overflow: hidden; /* Hide overflow content */
+  text-overflow: ellipsis; /* Add ellipsis for overflow text */
+  white-space: nowrap; /* Prevent text from wrapping */
+}
+
+#applicantsTable th, #allUsersTable th {
+  background-color: #f2f2f2;
+  text-align: center; /* Center-align the table headers */
+}
+
+#applicantsTable tbody, #allUsersTable tbody {
+  display: block;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+#applicantsTable thead, #allUsersTable thead, #applicantsTable tbody tr, #allUsersTable tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
