@@ -38,6 +38,14 @@ window.App = {
         const roomId = urlParams.get('roomId');
         
         const token = urlParams.get('Authorization')?.split(' ')[1];
+        if (token) {
+          sessionStorage.setItem('jwtTokenVoter', token);
+          const tokenExpiryTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+          setTimeout(() => {
+            sessionStorage.removeItem('jwtTokenVoter');
+          }, tokenExpiryTime);
+        }
+
         if (roomId) {
           selectedRoomId = parseInt(roomId);
           App.updateRoomCandidates(selectedRoomId, instance, token);
@@ -61,6 +69,9 @@ window.App = {
   },
 
   checkAdminRole: function(token) {
+    if (!token) {
+      token = sessionStorage.getItem('jwtTokenVoter');
+    }
     if (token) {
       try {
         const decodedToken = JSON.parse(atob(token.split('.')[1]));
@@ -90,22 +101,48 @@ window.App = {
     } catch (error) {
       console.error("Failed to retrieve room info:", error);
     }
-
   },
-  
+
   displayResults: async function(roomId, instance) {
     try {
       const candidates = await instance.getRoomCandidates(roomId);
-      $('#resultsList').empty();
-      $('#resultsList').append('<h3>Results</h3>');
-      $('#resultsList').append('<ul id="results"></ul>');
+      $('#boxCandidate').empty();
+
+      let maxVotes = 0;
+      let winners = [];
+      let totalVotes = 0;
+
       candidates.forEach(candidate => {
-        $('#results').append(`<li>Name: ${candidate.name}, Votes: ${candidate.voteCount}</li>`);
+        const voteCount = parseInt(candidate.voteCount, 10);
+
+        const tableRow = `
+          <tr>
+            <td>${candidate.name}</td>
+            <td>${candidate.voteCount}</td>
+          </tr>`;
+        $('#boxCandidate').append(tableRow);
+        totalVotes += voteCount;
+
+        if (candidate.voteCount > maxVotes) {
+          maxVotes = candidate.voteCount;
+          winners = [candidate.name];
+        } else if (candidate.voteCount === maxVotes) {
+          winners.push(candidate.name);
+        }
       });
+
+      if (totalVotes === 0) {
+        $("#winner").html(`<p>No one has won the vote.</p>`);
+      } else if (winners.length > 1) {
+        $("#winner").html(`<p>${winners.join(' and ')} have won the vote.</p>`);
+      } else {
+        $("#winner").html(`<p>${winners[0]} has won the vote.</p>`);
+      }
     } catch (err) {
-      console.error("Error displaying results:", err);
+      console.error("ERROR in displayResults! " + err.message);
     }
   },
+
   updateRoomList: async function(instance) {
     try {
       const roomCount = await instance.roomCount.call();
@@ -122,12 +159,15 @@ window.App = {
 
   updateRoomCandidates: async function(roomId, instance, token) {
     try {
+      if (!token) {
+        token = sessionStorage.getItem('jwtTokenVoter');
+      }
       if (roomId !== undefined && instance !== undefined) {
         const candidates = await instance.getRoomCandidates(roomId);
         $('#boxCandidate').empty();
 
         const decodedToken = token ? JSON.parse(atob(token.split('.')[1])) : null;
-        const isAdmin = localStorage.getItem('jwtTokenAdmin') !== null;
+        const isAdmin = sessionStorage.getItem('jwtTokenAdmin') !== null;
 
         const room = await instance.votingRooms(roomId);
         const currentTimestamp = Math.round(Date.now() / 1000);
@@ -147,10 +187,13 @@ window.App = {
         const votingPeriodActive = await App.checkVotingPeriod(roomId, instance);
 
         if (hasVoted || !votingPeriodActive) {
-          $("#voteButton").attr("disabled", true);
+          $("#voteButton").hide();
+          $("input[name='candidate']").hide();
           $("#msg").html("<p>You have already voted or voting is closed.</p>");
+          $("#voteInstruction").hide();
         } else {
-          $("#voteButton").attr("disabled", false);
+          $("#voteButton").show();
+          $("input[name='candidate']").show();
           $("#msg").empty();
         }
       } else {
@@ -174,14 +217,44 @@ window.App = {
 
   vote: async function(instance) {
     const selectedCandidateId = $('input[name="candidate"]:checked').val();
+    const token = sessionStorage.getItem('jwtTokenVoter');
+
+    if (!selectedCandidateId) {
+      document.getElementById('msg').innerHTML = '<p>Please select a candidate before voting.</p>';
+      setTimeout(() => {
+        $("#msg").html("");
+      }, 3000);
+      return;
+    }
+
     try {
       const transaction = await instance.vote(selectedRoomId, selectedCandidateId, { from: App.account });
-      await instance.storeTransactionHash(selectedRoomId, transaction.tx);
-      document.getElementById('msg').innerHTML = '<p>Vote cast successfully!</p>';
-    } catch (error) {
-      console.error("Voting failed", error);
+
+      let hashStored = false;
+      while (!hashStored) {
+        try {
+          await instance.storeTransactionHash(selectedRoomId, transaction.tx);
+          hashStored = true;
+          document.getElementById('msg').innerHTML = '<p>Vote cast successfully!</p>';
+          $("#voteButton").hide();
+          $("input[name='candidate']").hide();
+        } catch (hashError) {
+          if (hashError.code === 4001) { // User denied transaction signature
+            console.error("Transaction signature denied for storing hash", hashError);
+            document.getElementById('msg').innerHTML = '<p>Transaction was rejected. Please confirm the transaction to store the transaction hash.</p>';
+          } else {
+            console.error("Storing transaction hash failed", hashError);
+            document.getElementById('msg').innerHTML = '<p>Recording vote failed. Please confirm the transaction to store the transaction hash.</p>';
+          }
+          await new Promise(resolve => setTimeout(resolve, 3000)); // Wait before retrying
+        }
+      }
+    } catch (voteError) {
+      console.error("Voting failed", voteError);
       document.getElementById('msg').innerHTML = '<p>Voting failed. Please try again.</p>';
-    
+      setTimeout(() => {
+        $("#msg").html("");
+      }, 3000);
     }
   },
 };

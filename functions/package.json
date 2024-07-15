@@ -1,0 +1,55 @@
+{
+  "name": "decentralized-voting",
+  "version": "1.0.0",
+  "description": "A decentralized voting application built on blockchain technology.",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "author": "Cha Zhi Ye",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/preset-env": "^7.24.4",
+    "@babel/preset-react": "^7.24.1",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@truffle/contract": "^4.6.18",
+    "babel-loader": "^9.1.3",
+    "browserify": "^17.0.0",
+    "bulma": "^0.9.4",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.7.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "path-browserify": "^1.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4",
+    "web3": "^1.9.0"
+  },
+  "devDependencies": {
+    "html-loader": "^5.0.0",
+    "os-browserify": "^0.3.0",
+    "stream-browserify": "^3.0.0",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

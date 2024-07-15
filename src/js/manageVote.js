@@ -1,5 +1,3 @@
-// manageVote.js
-
 const Web3 = require('web3');
 const contract = require('@truffle/contract');
 const votingArtifacts = require('../../build/contracts/Voting.json');
@@ -45,20 +43,40 @@ window.ManageVote = {
 
             });
             $('#createRoom').click(async function() {
-                const startDate = Date.parse(document.getElementById("startDate").value) / 1000;
-                const endDate = Date.parse(document.getElementById("endDate").value) / 1000;
-                const roomName = document.getElementById("roomName").value;
-                try {
+              const startDateInput = document.getElementById("startDate").value;
+              const endDateInput = document.getElementById("endDate").value;
+              const roomName = document.getElementById("roomName").value;
+          
+              if (!startDateInput || !endDateInput || !roomName) {
+                  $("#msg6").html("All fields are required");
+                  setTimeout(() => {
+                      $("#msg6").html("");
+                  }, 3000);
+                  return;
+              }
+          
+              const startDate = Date.parse(startDateInput) / 1000;
+              const endDate = Date.parse(endDateInput) / 1000;
+          
+              if (startDate >= endDate) {
+                  $("#msg6").html("Start date must be less than end date");
+                  setTimeout(() => {
+                      $("#msg6").html("");
+                  }, 3000);
+                  return;
+              }
+          
+              try {
                   await instance.createVotingRoom(startDate, endDate, roomName);
                   $("#msg1").html("Voting room created successfully");
                   setTimeout(() => {
-                    $("#msg1").html("");
-                }, 3000);
-                    ManageVote.updateRoomList(instance);
-                } catch (err) {
+                      $("#msg1").html("");
+                  }, 3000);
+                  ManageVote.updateRoomList(instance);
+              } catch (err) {
                   console.error("Error creating voting room: " + err.message);
-                }
-              });
+              }
+          });
               $('#selectRoom').change(function() {
                 selectedRoomId = parseInt($('#selectRoom').val());
 
@@ -66,16 +84,43 @@ window.ManageVote = {
               $('#addCandidate').click(async function() {
                 const nameCandidate = $('#name').val();
                 const ICCandidate = $('#IC').val();
+                if (!nameCandidate || !ICCandidate ) {
+                  $("#msg5").html("All fields are required");
+                  setTimeout(() => {
+                      $("#msg5").html("");
+                  }, 3000);
+                  return;
+              }
+                const icPattern = /^\d{6}-\d{2}-\d{4}$/;
+                if (!icPattern.test(ICCandidate)) {
+                  $("#msg5").html("Invalid IC number format. It should be in the format 000000-00-0000.");
+                  setTimeout(() => {
+                    $("#msg5").html("");
+                  }, 3000);
+                  return;
+                }
+
                 if (selectedRoomId === null || isNaN(selectedRoomId)) {
                   console.error("Invalid room ID");
                   return;
                 }
                 try {
+                  // Fetch all candidates for the selected room
+                  const candidates = await instance.getRoomCandidates(selectedRoomId);
+                  const duplicateCandidate = candidates.find(candidate => candidate.IC === ICCandidate);
+                  if (duplicateCandidate) {
+                    $("#msg5").html("Error: Duplicate candidate IC number in the same room");
+                    setTimeout(() => {
+                      $("#msg5").html("");
+                    }, 3000);
+                    return;
+                  }
+
                   await instance.addCandidate(selectedRoomId, nameCandidate, ICCandidate);
                   $("#msg2").html("Candidate added successfully");
                   setTimeout(() => {
                     $("#msg2").html("");
-                }, 3000);
+                  }, 3000);
                     
                 } catch (err) {
                   console.error("Error adding candidate: " + err.message);
@@ -89,6 +134,7 @@ window.ManageVote = {
   },
 
 
+
   assignUsersToRoom: async function() {
     try {
         const roomID = parseInt($('#selectRoomForAssignment').val());
@@ -99,7 +145,7 @@ window.ManageVote = {
         }
 
         const apiUrl = 'http://127.0.0.1:8000/assignRoom';
-        const token = localStorage.getItem('jwtToken');
+        const token = sessionStorage.getItem('jwtTokenAdmin');
         const payload = { users: selectedUsers, roomID: roomID };
 
         const response = await fetch(apiUrl, {

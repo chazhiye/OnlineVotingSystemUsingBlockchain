@@ -24,7 +24,7 @@ const AdminApp = {
       VotingContract.defaults({ from: window.ethereum.selectedAddress, gas: 6654755 });
 
       AdminApp.account = window.ethereum.selectedAddress;
-      $("#accountAddress").html("Your Account: " + window.ethereum.selectedAddress);
+  
 
       const instance = await VotingContract.deployed();
       await AdminApp.updateRoomList(instance); // Wait for room list to load before setting selected room
@@ -38,7 +38,7 @@ const AdminApp = {
           console.log(`Room ID from URL: ${roomId}`);
           selectedRoomId = parseInt(roomId);
           AdminApp.updateAdminRoomCandidates(selectedRoomId, instance, token);
-          AdminApp.updateVotingPageInfo(selectedRoomId, instance); 
+          AdminApp.updateVotingPageInfo(selectedRoomId, instance);
           AdminApp.checkAdminRole(token); // Check if the user is an admin
         }
 
@@ -47,16 +47,34 @@ const AdminApp = {
               console.error("Invalid room ID");
               return;
           }
+
           try {
+              const instance = await VotingContract.deployed();
               await instance.deleteVotingRoom(selectedRoomId, { from: AdminApp.account });
               console.log("All candidates and room deleted successfully");
+      
+              // Call the new endpoint to remove roomID from all users
+              const response = await fetch('http://127.0.0.1:8000/removeRoomID', {
+                  method: 'DELETE',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${sessionStorage.getItem('jwtTokenAdmin')}`
+                  },
+                  body: JSON.stringify({ roomID: selectedRoomId })
+              });
+      
+              if (!response.ok) {
+                  throw new Error('Failed to remove room ID from users');
+              }
+      
+              console.log("Room ID removed from all users successfully");
               AdminApp.updateRoomList(instance); // Update room list after deletion
       
               // Redirect to the previous page
-              const previousPage = localStorage.getItem('previousPage');
+              const previousPage = sessionStorage.getItem('previousPage');
               if (previousPage) {
                   const tokenKey = previousPage === 'admin.html' ? 'jwtTokenAdmin' : 'jwtTokenVoter';
-                  const token = localStorage.getItem(tokenKey);
+                  const token = sessionStorage.getItem(tokenKey);
                   if (token) {
                       window.location.replace(`http://127.0.0.1:8080/${previousPage}?Authorization=Bearer ${token}`);
                   } else {
@@ -121,6 +139,7 @@ const AdminApp = {
       console.error("Error fetching voting rooms: " + err.message);
     }
   },
+
   updateAdminRoomCandidates: async function(roomId, instance, token) {
     try {
       const candidates = await instance.getRoomCandidates(roomId);
@@ -176,31 +195,27 @@ const AdminApp = {
       const room = await instance.votingRooms(roomId);
       const startDate = new Date(room.startDate * 1000).toLocaleString();
       const endDate = new Date(room.endDate * 1000).toLocaleString();
-
+      const currentDate = new Date();
+      const endDateObject = new Date(room.endDate * 1000);
+      const dayDifference = Math.floor((currentDate - endDateObject) / (1000 * 60 * 60 * 24));
+      
       $('#roomName').text(room.name);
       $('#dates').text(`Start: ${startDate}, End: ${endDate}`);
+      $("#accountAddress").html(`Your Account: ${window.ethereum.selectedAddress} <br> Your Room ID: ${roomId}`);
+      
+      // Enable/disable deleteAllButton based on dayDifference
+      if (dayDifference >= 14) {
+          $('#deleteAllButton').prop('disabled', false);
+      } else {
+          $('#deleteAllButton').prop('disabled', true);
+          $('#msg').text("You cannot delete records before 14 days have passed since the end date.").css('color', 'black');
+      }
     } catch (err) {
       console.error("Error updating voting page info:", err);
     }
   },
 };
-const backButton = document.getElementById('backButton');
-if (backButton) {
-    backButton.addEventListener('click', () => {
-        const previousPage = localStorage.getItem('previousPage');
-        if (previousPage) {
-            const tokenKey = previousPage === 'admin.html' ? 'jwtTokenAdmin' : 'jwtTokenVoter';
-            const token = localStorage.getItem(tokenKey);
-            if (token) {
-                window.location.replace(`http://127.0.0.1:8080/${previousPage}?Authorization=Bearer ${token}`);
-            } else {
-                console.error('Token not found for previous page.');
-                window.location.replace('http://127.0.0.1:8080');
-            }
-        } else {
-            console.error('Previous page not set.');
-        }
-    });
-}
+
+
 window.AdminApp = AdminApp;
 window.addEventListener('load', AdminApp.init);

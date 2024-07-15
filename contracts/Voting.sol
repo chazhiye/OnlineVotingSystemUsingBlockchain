@@ -20,6 +20,7 @@ contract Voting {
     mapping(uint256 => Candidate[]) public roomCandidates;
     mapping(address => mapping(uint256 => bool)) public votes;
     mapping(uint256 => bytes32[]) public roomTransactionHashes;
+    mapping(address => mapping(uint256 => bool)) public votesToRevert; // Track votes to revert
 
     uint256 public roomCount = 0;
     uint256 public candidateCount = 0;
@@ -30,7 +31,8 @@ contract Voting {
     event CandidateDeleted(uint256 roomId, uint256 candidateId);
     event RoomDeleted(uint256 id);
     event Voted(uint256 roomId, uint256 candidateID);
-    event DebugHashes(bytes32[] hashes); 
+    event VoteReverted(uint256 roomId, uint256 candidateID); // Event for vote reversion
+    event DebugHashes(bytes32[] hashes);
 
     function createVotingRoom(uint256 _startDate, uint256 _endDate, string memory _name) public {
         require(_startDate <= _endDate, "Start date must be before end date");
@@ -149,5 +151,40 @@ contract Voting {
     function getRoomTransactionHashes(uint256 roomId) public view returns (bytes32[] memory) {
         require(roomId < roomCount, "Invalid room ID");
         return roomTransactionHashes[roomId];
+    }
+
+    function revertVote(uint256 roomId, uint256 candidateID) public {
+        require(roomId < roomCount, "Invalid room ID");
+        require(votes[msg.sender][roomId], "You have not voted in this room");
+
+        Room memory room = votingRooms[roomId];
+        require(block.timestamp >= room.startDate && block.timestamp <= room.endDate, "Voting is not open");
+
+        Candidate[] storage candidates = roomCandidates[roomId];
+        bool validCandidate = false;
+        for (uint i = 0; i < candidates.length; i++) {
+            if (candidates[i].id == candidateID) {
+                require(candidates[i].voteCount > 0, "Vote count is already zero");
+                candidates[i].voteCount--;
+                validCandidate = true;
+                break;
+            }
+        }
+        require(validCandidate, "Invalid candidate ID");
+
+        votes[msg.sender][roomId] = false;
+        votesToRevert[msg.sender][roomId] = false; // Clear the flag
+
+        emit VoteReverted(roomId, candidateID);  // Separate event for vote reversion
+    }
+
+    function flagVoteForReversion(uint256 roomId) public {
+        require(roomId < roomCount, "Invalid room ID");
+        votesToRevert[msg.sender][roomId] = true;
+    }
+
+    function retryRevertVote(uint256 roomId, uint256 candidateID) public {
+        require(votesToRevert[msg.sender][roomId], "No vote to revert");
+        revertVote(roomId, candidateID);
     }
 }

@@ -10,10 +10,10 @@
 </head>
 
 <body>
-    <h1 align="center" style="color: rgb(14, 15, 15);">Online Voting System Using Blockchain</h1>
+  <h1 align="center" style="color: rgb(14, 15, 15);">Online Voting System Using Blockchain</h1>
   <div class="container mt-5">
     <h1>Admin Login</h1>
-    
+
     <form id="adminLoginForm">
       <button class="button is-white connect-wallet" id="connectWallet">
         <span class="is-link has-text-weight-bold" id="walletAddress">
@@ -21,10 +21,11 @@
         </span>
       </button>
       <label for="IC number"><h3>IC number</h3></label>
-      <input type="text" class="form-control" id="IC" name="IC" placeholder="IC">
+      <input type="text" class="form-control" id="IC" name="IC" placeholder="000000-00-0000">
+      <div id="msg"></div>
       <button type="submit" id="login" class="btn btn-primary"><b>Login</b></button>
     </form>
-    
+
     <div class="mt-3">
       <button class="btn link-btn" onclick="window.location.href='/'"><b>User Login</b></button>
       <button class="btn link-btn" onclick="window.location.href='/applyAccount.html'"><b>Apply for Account</b></button>
@@ -35,4 +36,5 @@
   <script src="../js/login.js" type="module"></script>
   <script src="../../dist/bundle.js"></script>
 </body>
+
 </html>

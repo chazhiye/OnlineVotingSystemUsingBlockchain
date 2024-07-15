@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, status, Request, Depends
+from fastapi import FastAPI, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import jwt
@@ -8,30 +9,10 @@ import dotenv
 from typing import List, Optional
 import json
 
-
 dotenv.load_dotenv()
 
 # Initialize FastAPI app
 app = FastAPI()
-
-class Application(BaseModel):
-    walletID: str
-    role: str
-    IC: str
-
-
-class WalletIDModel(BaseModel):
-    walletID: str
-
-class RoomIDModel(BaseModel):
-    roomID: int
-    users: List[str]  
-
-class UserUpdate(BaseModel):
-    walletID: str
-    role: str
-    IC: str
-    roomIDs: Optional[List[int]] = None
 
 # Define allowed origins for CORS
 origins = [
@@ -65,48 +46,78 @@ except mysql.connector.Error as err:
     else:
         print(err)
 
-# Define the authentication middleware
-async def authenticate(request: Request, table: str):
+# Models
+class Application(BaseModel):
+    walletID: str
+    role: str
+    IC: str
+
+class WalletIDModel(BaseModel):
+    walletID: str
+
+class RoomIDModel(BaseModel):
+    roomID: int
+    users: List[str]  
+
+class UserUpdate(BaseModel):
+    walletID: str
+    role: str
+    IC: str
+    roomIDs: Optional[List[int]] = None
+
+SECRET_KEY = os.environ['SECRET_KEY']
+ALGORITHM = "HS256"
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+# Utility function to decode JWT tokens
+def decode_token(token: str):
     try:
-        api_key = request.headers.get('authorization').replace("Bearer ", "")
-        query = f"SELECT * FROM {table} WHERE wallet_id = %s"
-        cursor.execute(query, (api_key,))
-        if api_key not in [row[0] for row in cursor.fetchall()]:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Forbidden"
-            )
-    except:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.PyJWTError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Forbidden"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
         )
 
-# Define the GET endpoint for user login
+# Dependency to get the current user based on the token
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    payload = decode_token(token)
+    return payload
+
+# Dependency to check if the user is an admin
+def get_current_admin(current_user: dict = Depends(get_current_user)):
+    if current_user.get('role') != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    return current_user
+
+@app.get("/checkAdmin")
+async def check_admin(current_user: dict = Depends(get_current_user)):
+    is_admin = current_user.get('role') == 'admin'
+    return {"isAdmin": is_admin}
+
 @app.get("/login")
-async def login(request: Request, wallet_id: str, IC: str):
-    await authenticate(request, 'voters')
+async def login(wallet_id: str, IC: str):
     role = await get_role(wallet_id, IC, 'voters')
 
     # Assuming authentication is successful, generate a token
-    token = jwt.encode({'IC': IC, 'wallet_id': wallet_id, 'role': role}, os.environ['SECRET_KEY'], algorithm='HS256')
-
+    token = jwt.encode({'IC': IC, 'wallet_id': wallet_id, 'role': role}, SECRET_KEY, algorithm=ALGORITHM)
     return {'token': token, 'role': role}
 
-# Define the GET endpoint for admin login
 @app.get("/adminLogin")
-async def admin_login(request: Request, wallet_id: str, IC: str):
-    await authenticate(request, 'admin')
+async def admin_login(wallet_id: str, IC: str):
     role = await get_role(wallet_id, IC, 'admin')
 
     # Assuming authentication is successful, generate a token
-    token = jwt.encode({'IC': IC, 'wallet_id': wallet_id, 'role': role}, os.environ['SECRET_KEY'], algorithm='HS256')
-
+    token = jwt.encode({'IC': IC, 'wallet_id': wallet_id, 'role': role}, SECRET_KEY, algorithm=ALGORITHM)
     return {'token': token, 'role': role}
 
-# Function to get role from the database
 @app.get("/getRole")
-async def get_role(wallet_id, IC, table):
+async def get_role(wallet_id: str, IC: str, table: str):
     try:
         query = f"SELECT role FROM {table} WHERE wallet_id = %s AND IC = %s"
         cursor.execute(query, (wallet_id, IC,))
@@ -151,22 +162,30 @@ async def apply_account(application: Application):
             detail="Failed to submit application"
         )
 
-# Use this addUser for adding users directly
 @app.post("/addUser")
 async def add_user(user: Application):
     try:
-        # Check if walletID or IC already exists in the voters table
+        # Check if walletID or IC already exists in the voters or admin tables
         cursor.execute("SELECT COUNT(*) FROM voters WHERE wallet_id = %s OR IC = %s", (user.walletID, user.IC))
-        user_count = cursor.fetchone()[0]
+        user_count_voters = cursor.fetchone()[0]
 
-        if user_count > 0:
+        cursor.execute("SELECT COUNT(*) FROM admin WHERE wallet_id = %s OR IC = %s", (user.walletID, user.IC))
+        user_count_admin = cursor.fetchone()[0]
+
+        if user_count_voters > 0 or user_count_admin > 0:
             raise HTTPException(status_code=400, detail="Wallet ID or IC number already exists")
 
-        # If not exists, insert into voters table
-        cursor.execute(
-            "INSERT INTO voters (wallet_id, role, IC) VALUES (%s, %s, %s)",
-            (user.walletID, user.role, user.IC)
-        )
+        # Insert into the appropriate table based on the role
+        if user.role.lower() == 'admin':
+            cursor.execute(
+                "INSERT INTO admin (wallet_id, role, IC) VALUES (%s, %s, %s)",
+                (user.walletID, user.role, user.IC)
+            )
+        else:
+            cursor.execute(
+                "INSERT INTO voters (wallet_id, role, IC) VALUES (%s, %s, %s)",
+                (user.walletID, user.role, user.IC)
+            )
         cnx.commit()
     except mysql.connector.Error as err:
         print(err)
@@ -174,7 +193,7 @@ async def add_user(user: Application):
             status_code=500,
             detail="Failed to add user"
         )
-
+    
 @app.get('/users')
 async def get_users():
     try:
@@ -345,3 +364,31 @@ async def get_user_assigned_rooms(walletID: str):
     except mysql.connector.Error as err:
         print(err)
         raise HTTPException(status_code=500, detail="Failed to fetch assigned rooms")
+
+@app.delete('/removeRoomID')
+async def remove_room_id(roomIDModel: RoomIDModel):
+    try:
+        query = "SELECT wallet_id, roomIDs FROM voters"
+        cursor.execute(query)
+        users = cursor.fetchall()
+
+        for user in users:
+            wallet_id = user[0]
+            room_ids = json.loads(user[1]) if user[1] else []
+
+            # Remove all occurrences of roomIDModel.roomID from the list
+            updated_room_ids = [room_id for room_id in room_ids if room_id != roomIDModel.roomID]
+
+            # Update the user's roomIDs if any changes were made
+            if updated_room_ids != room_ids:
+                updated_room_ids_json = json.dumps(updated_room_ids) if updated_room_ids else None
+                cursor.execute(
+                    "UPDATE voters SET roomIDs = %s WHERE wallet_id = %s",
+                    (updated_room_ids_json, wallet_id)
+                )
+
+        cnx.commit()
+        return {"message": "Room ID removed from all users successfully"}
+    except mysql.connector.Error as err:
+        print(err)
+        raise HTTPException(status_code=500, detail="Failed to remove room ID from users")

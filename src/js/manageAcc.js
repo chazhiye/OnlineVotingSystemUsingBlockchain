@@ -36,7 +36,7 @@ async function handleApplyAccount(event) {
     return;
   }
 
-  const walletID = document.getElementById('walletID').value;
+  const walletID = document.getElementById('walletID').value.toLowerCase();
   const role = document.getElementById('role').value;
 
   const data = { walletID, role, IC };
@@ -90,9 +90,15 @@ function showSuccess(message) {
 async function handleAddUser(event) {
   event.preventDefault();
 
-  const walletID = document.getElementById('walletID').value;
+  const walletID = document.getElementById('walletID').value.toLowerCase();
   const role = document.getElementById('role').value;
   const IC = document.getElementById('IC').value;
+  const icPattern = /^\d{6}-\d{2}-\d{4}$/;
+
+  if (!icPattern.test(IC)) {
+    showAddUserError('Invalid IC number format. It should be in the format 000000-00-0000.', 'red');
+    return;
+  }
 
   const data = { walletID, role, IC };
 
@@ -114,6 +120,7 @@ async function handleAddUser(event) {
     showAddUserError(error.message || 'Adding user failed. Please try again.');
   }
 }
+
 
 async function loadApplicants() {
   try {
@@ -190,6 +197,11 @@ async function loadUsers() {
 
 
 async function approveApplicant(walletID) {
+  const isConfirmed = confirm("Are you sure you want to approve this applicant?");
+  if (!isConfirmed) {
+    return;
+  }
+
   try {
     const response = await fetch(`http://127.0.0.1:8000/approveApplicant`, {
       method: 'POST',
@@ -206,6 +218,11 @@ async function approveApplicant(walletID) {
 }
 
 async function rejectApplicant(walletID) {
+  const isConfirmed = confirm("Are you sure you want to reject this applicant?");
+  if (!isConfirmed) {
+    return;
+  }
+
   try {
     const response = await fetch(`http://127.0.0.1:8000/rejectApplicant`, {
       method: 'DELETE',
@@ -239,7 +256,6 @@ async function deleteUser(walletID) {
     console.error('Error deleting user:', error);
   }
 }
-
 function editUser(editButton) {
   const row = editButton.closest('tr');
   const saveButton = row.querySelector('button[onclick="saveUser(this)"]');
@@ -261,19 +277,20 @@ async function saveUser(saveButton) {
   const row = saveButton.closest('tr');
   const cells = row.querySelectorAll('td');
 
-  const walletID = cells[0].querySelector('input').value;
+  const walletID = cells[0].querySelector('input').value.toLowerCase();;
   const IC = cells[1].querySelector('input').value;
   const role = cells[2].querySelector('input').value;
   const roomIDsInput = cells[3].querySelector('input').value;
 
-  // Add logging for roomIDsInput
-  console.log("Room IDs Input:", roomIDsInput);
+  // Validate the IC format
+  const icPattern = /^\d{6}-\d{2}-\d{4}$/;
+  if (!icPattern.test(IC)) {
+    alert('Invalid IC number format. It should be in the format 000000-00-0000.');
+    return;
+  }
 
   // Split and map room IDs correctly, handle edge cases
   const roomIDs = roomIDsInput ? roomIDsInput.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id)) : [];
-
-  // Add logging for roomIDs after processing
-  console.log("Processed Room IDs:", roomIDs);
 
   const updatedUser = {
     walletID: walletID,
@@ -281,8 +298,6 @@ async function saveUser(saveButton) {
     role: role,
     roomIDs: roomIDs.length ? roomIDs : null  // Ensure roomIDs is null if empty
   };
-
-  console.log("Updating user with data:", updatedUser);
 
   try {
     const response = await fetch(`http://127.0.0.1:8000/users/${walletID}`, {
@@ -302,6 +317,7 @@ async function saveUser(saveButton) {
     alert('Failed to update user');
   }
 }
+
 
 
 

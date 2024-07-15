@@ -18,12 +18,23 @@ window.addEventListener('DOMContentLoaded', () => {
   const token = urlParams.get('Authorization')?.split(' ')[1];
 
   if (token) {
-    localStorage.setItem('jwtTokenVoter', token);
     const userRole = getRoleFromToken(token);
+    const tokenExpiryTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+
     if (userRole === 'admin') {
+      sessionStorage.setItem('jwtTokenAdmin', token);
+      setTimeout(() => {
+        sessionStorage.removeItem('jwtTokenAdmin');
+      }, tokenExpiryTime);
       getVotingRooms(token, true); // Get all rooms for admin
-    } else {
+    } else if (userRole === 'user') {
+      sessionStorage.setItem('jwtTokenVoter', token);
+      setTimeout(() => {
+        sessionStorage.removeItem('jwtTokenVoter');
+      }, tokenExpiryTime);
       getUserAssignedRooms(token); // Get assigned rooms for user
+    } else {
+      console.error('Invalid role detected.');
     }
   } else {
     console.error('Authorization token not found in URL.');
@@ -69,8 +80,8 @@ async function getVotingRooms(token, isAdmin, userAssignedRoomIDs = []) {
 
     voteContainer.querySelectorAll('.voteButton:not(#createVoteButton)').forEach(button => button.remove());
 
-    const userToken = localStorage.getItem('jwtTokenVoter');
-    const adminToken = localStorage.getItem('jwtTokenAdmin');
+    const userToken = sessionStorage.getItem('jwtTokenVoter');
+    const adminToken = sessionStorage.getItem('jwtTokenAdmin');
 
     rooms.forEach(async (room) => {
       const roomId = room[0]?.toString();
@@ -83,10 +94,7 @@ async function getVotingRooms(token, isAdmin, userAssignedRoomIDs = []) {
         return;
       }
 
-
-
       if (!isAdmin && userAssignedRoomIDs && !userAssignedRoomIDs.map(String).includes(roomId)) {
-
         return; // Skip rooms not assigned to the user
       }
 
@@ -100,7 +108,7 @@ async function getVotingRooms(token, isAdmin, userAssignedRoomIDs = []) {
           voteContainer.appendChild(voteButton);
 
           voteButton.addEventListener('click', () => {
-            localStorage.setItem('previousPage', 'createVote.html');
+            sessionStorage.setItem('previousPage', 'createVote.html');
             const redirectPage = isAdmin ? 'adminIndex.html' : 'index.html';
             const redirectToken = isAdmin ? adminToken : userToken;
             window.location.replace(`http://127.0.0.1:8080/${redirectPage}?Authorization=Bearer ${redirectToken}&roomId=${roomId}`);

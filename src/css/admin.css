@@ -39,6 +39,11 @@ legend {
   color: #29d820;
   margin-bottom: 30px;
 }
+#msg4,#msg5,#msg6 {
+  font-size: 18px;
+  color: #ff0505;
+  margin-bottom: 30px;
+}
 .table {
   width: 80%;
   margin: 0 auto; /* Center the table horizontally */

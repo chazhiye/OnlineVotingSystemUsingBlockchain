@@ -14,13 +14,13 @@
         <img src="/assets/eth_logo.png" alt="EEvoting Logo" class="sidebar-logo" id="sidebarLogo">
         <span class="sidebar-text">EEvoting</span>
     </div>
-    <button id="dashboardButton" >
+    <button id="dashboardButton" class="active">
         <img src="/assets/dashboard.png" alt="Dashboard Icon" class="sidebar-icon"> <span class="sidebar-text">Dashboard</span>
     </button>
     <button id="manageUsersButton">
         <img src="/assets/addUser.png" alt="Manage Users Icon" class="sidebar-icon"> <span class="sidebar-text">Manage Users</span>
     </button>
-    <button id="createVoteButton" class="active">
+    <button id="createVoteButton" >
         <img src="/assets/create.png" alt="Create Vote Icon" class="sidebar-icon"> <span class="sidebar-text">Create Vote</span>
     </button>
     <button id="monitorButton" >
@@ -53,7 +53,7 @@
       <div class="text-center">
         <button id="deleteAllButton" class="btn btn-danger">Delete All Records</button>
       </div>
-      <div id="winner" class="text-center"></div>
+      <div id="msg" class="text-center"></div>
 
     </div>
     <div id="account">
@@ -67,4 +67,3 @@
   <script src="../dist/adminIndex.bundle.js" type="module"></script>
 </body>
 </html>
-

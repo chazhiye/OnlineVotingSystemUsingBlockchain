@@ -16,8 +16,17 @@ VotingContract.setProvider(web3Provider);
 window.addEventListener('load', async function() {
   try {
     const instance = await VotingContract.deployed();
-    let token = localStorage.getItem('jwtTokenAdmin') || localStorage.getItem('jwtTokenVoter');
-    if (!token) throw new Error('No JWT token found in localStorage.');
+    let token = sessionStorage.getItem('jwtTokenAdmin') || sessionStorage.getItem('jwtTokenVoter');
+    if (!token) throw new Error('No JWT token found in sessionStorage.');
+
+    // Set a timeout to clear the token after 10 minutes
+    const tokenExpiryTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+    setTimeout(() => {
+      sessionStorage.removeItem('jwtTokenAdmin');
+      sessionStorage.removeItem('jwtTokenVoter');
+      alert('Session expired. Please log in again.');
+      window.location.replace('login.html'); // Redirect to the login page
+    }, tokenExpiryTime);
 
     let decodedToken;
     try {
@@ -58,16 +67,20 @@ async function displayUserTransactionHashes(instance, userWalletID) {
   try {
     const response = await fetch('http://127.0.0.1:8000/users');
     if (!response.ok) throw new Error('Failed to fetch users');
-    
+
     const users = await response.json();
     const user = users.find(user => user.walletID === userWalletID);
     const assignedRooms = user ? user.roomIDs : [];
     console.log('Assigned rooms for user:', assignedRooms);
 
-    for (const roomId of assignedRooms) {
+    // Convert assignedRooms from JSON string to array of numbers
+    const roomIDs = JSON.parse(assignedRooms);
+
+    for (const roomId of roomIDs) {
       try {
         const hashes = await instance.getRoomTransactionHashes(roomId);
         console.log(`Transaction hashes for room ${roomId}:`, hashes);
+
         await appendTransactionHashes(instance, roomId, hashes);
       } catch (error) {
         console.error(`Error getting transaction hashes for room ${roomId}:`, error);

@@ -19,7 +19,7 @@ const authorizeUser = (req, res, next) => {
   const token = req.query.Authorization?.split('Bearer ')[1];
 
   if (!token) {
-    return res.status(401).send('<h1 align="center"> Login to Continue </h1>');
+    return res.redirect('/?clearSession=true'); // Redirect to the login page if no token is found
   }
 
   try {
@@ -29,7 +29,7 @@ const authorizeUser = (req, res, next) => {
     req.user = decodedToken;
     next(); // Proceed to the next middleware
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid authorization token' });
+    return res.redirect('/?clearSession=true'); // Redirect to the login page if the token is invalid
   }
 };
 

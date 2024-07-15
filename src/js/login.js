@@ -19,7 +19,16 @@ const handleConnectWallet = async (event) => {
     console.error(err.message);
   }
 }
+const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('clearSession') && urlParams.get('clearSession') === 'true') {
+      // Clear session storage
+      sessionStorage.removeItem('jwtTokenAdmin');
+      sessionStorage.removeItem('jwtTokenVoter');
+      sessionStorage.removeItem('previousPage');
 
+      // Optionally, remove the query parameter from the URL without reloading the page
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
 const updateConnectWalletButton = () => {
   connectWalletButton.textContent = `${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}`;
 }
@@ -31,6 +40,7 @@ const handleLogin = (event, role) => {
 
   const wallet_id = walletAddress; 
   const IC = document.getElementById('IC').value;
+  const icPattern = /^\d{6}-\d{2}-\d{4}$/;
 
   // Validation checks
   if (!wallet_id) {
@@ -40,6 +50,11 @@ const handleLogin = (event, role) => {
 
   if (!IC) {
     showMsg('Please enter your IC number');
+    return;
+  }
+
+  if (!icPattern.test(IC)) {
+    showMsg('Invalid IC number format. It should be in the format 000000-00-0000.', 'red');
     return;
   }
 
@@ -61,14 +76,22 @@ const handleLogin = (event, role) => {
     }
   })
   .then(data => {
+    const tokenExpiryTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+
     if (data.role === 'admin') {
-      localStorage.setItem('jwtTokenAdmin', data.token);
-      localStorage.setItem('previousPage', 'createVote.html');
-      window.location.replace(`http://127.0.0.1:8080/createVote.html?Authorization=Bearer ${localStorage.getItem('jwtTokenAdmin')}`);
+      sessionStorage.setItem('jwtTokenAdmin', data.token);
+      sessionStorage.setItem('previousPage', 'createVote.html');
+      setTimeout(() => {
+        sessionStorage.removeItem('jwtTokenAdmin');
+      }, tokenExpiryTime);
+      window.location.replace(`http://127.0.0.1:8080/createVote.html?Authorization=Bearer ${sessionStorage.getItem('jwtTokenAdmin')}`);
     } else if (data.role === 'user') {
-      localStorage.setItem('jwtTokenVoter', data.token);
-      localStorage.setItem('previousPage', 'voter.html');
-      window.location.replace(`http://127.0.0.1:8080/voter.html?Authorization=Bearer ${localStorage.getItem('jwtTokenVoter')}`);
+      sessionStorage.setItem('jwtTokenVoter', data.token);
+      sessionStorage.setItem('previousPage', 'voter.html');
+      setTimeout(() => {
+        sessionStorage.removeItem('jwtTokenVoter');
+      }, tokenExpiryTime);
+      window.location.replace(`http://127.0.0.1:8080/voter.html?Authorization=Bearer ${sessionStorage.getItem('jwtTokenVoter')}`);
     }
   })
   .catch(error => {
