@@ -76,11 +76,7 @@ button {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-#login:hover {
-  background-color: #960ba5;
-}
-
-button:hover {
+#connectWallet:hover,#login:hover {
   background-color: #960ba5;
 }
 
@@ -120,7 +116,6 @@ select {
   appearance: none;
 }
 
-
 select::-ms-expand { 
   display: none; 
 }
@@ -133,3 +128,47 @@ select::after {
   pointer-events: none; 
 }
 
+/* Help Button */
+.help-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.help-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.help-btn:hover {
+  transform: scale(1.1);
+}
+
+.help-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.help-text {
+  visibility: hidden;
+  width: 160px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  top: -30px;
+  right: 50%;
+  transform: translateX(50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.help-container:hover .help-text {
+  visibility: visible;
+  opacity: 1;
+}

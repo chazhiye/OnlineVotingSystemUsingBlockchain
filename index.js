@@ -179,6 +179,9 @@ app.get('/assets/create.png', (req, res) => {
 app.get('/assets/monitor.png', (req, res) => {
   res.sendFile(path.join(__dirname, 'src/assets/monitor.png'));
 });
+app.get('/assets/help.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src/assets/help.png'));
+});
 // Start the server
 app.listen(8080, () => {
   console.log('Server listening on http://localhost:8080');
